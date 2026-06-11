@@ -1,33 +1,87 @@
-function addTodo (){
+const input = document.getElementById("todo-input");
+const addBtn = document.getElementById("add-btn");
+const todoList = document.getElementById("todo-list");
+const errorMessage = document.getElementById("error-message");
 
-    //Récuperer la valeur
-const input = document.getElementById('todo-input')
-const todoText = input.value.trim();
+// Charger les tâches au démarrage
+document.addEventListener("DOMContentLoaded", loadTodos);
 
-    // Vérifier si la valeur n'est pas vide;
-    if(todoText === '' )return;
+// Ajouter avec le bouton
+addBtn.addEventListener("click", addTodo);
 
-    //Récuperer la todo
-    const todoList = document.getElementById('todo-list');
+// Ajouter avec Entrée
+input.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+        addTodo();
+    }
+});
 
-    // Créer une nouvelle tâche 
-    const li = document.createElement('li')
-    li.textContent = todoText;
+function addTodo() {
 
-    //Ajouter un button supprimer
-     const deleteButton = document.createElement('button')
-     deleteButton.textContent = "Supprimer";
-     deleteButton.classList.add("delete-button");
-     deleteButton.onclick = function(){
-        todoList.removeChild(li)
-     }
+    const todoText = input.value.trim();
 
-     //Associer le button avec l'élement
-     li.appendChild(deleteButton);
+    if (todoText === "") {
+        errorMessage.textContent = "Veuillez saisir une tâche.";
+        return;
+    }
 
-     // Ajouter l'élement á la page 
-     todoList.appendChild(li)
+    errorMessage.textContent = "";
 
-    // Réinitialiser 
- input.value = "";
+    createTodoElement(todoText);
+
+    saveTodo(todoText);
+
+    input.value = "";
+    input.focus();
+}
+
+function createTodoElement(todoText) {
+
+    const li = document.createElement("li");
+
+    const span = document.createElement("span");
+    span.textContent = todoText;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Supprimer";
+    deleteBtn.classList.add("delete-btn");
+
+    deleteBtn.addEventListener("click", function () {
+
+        li.remove();
+
+        removeTodo(todoText);
+    });
+
+    li.appendChild(span);
+    li.appendChild(deleteBtn);
+
+    todoList.appendChild(li);
+}
+
+function saveTodo(todo) {
+
+    let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+    todos.push(todo);
+
+    localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+function loadTodos() {
+
+    let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+    todos.forEach(todo => {
+        createTodoElement(todo);
+    });
+}
+
+function removeTodo(todoText) {
+
+    let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+    todos = todos.filter(todo => todo !== todoText);
+
+    localStorage.setItem("todos", JSON.stringify(todos));
 }
